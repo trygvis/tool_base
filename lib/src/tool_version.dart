@@ -20,19 +20,19 @@ class ToolVersion {
   ToolVersion(this.packageName, this.settingsPath, [this._url]);
 
   final String packageName;
-  final String settingsPath;
-  Uri _url;
+  final String? settingsPath;
+  Uri? _url;
 
-  static ToolVersion get instance => context.get<ToolVersion>();
+  static ToolVersion get instance => context.get<ToolVersion>()!;
 
 //  http.Client _client;
-  File _file;
-  Config _config;
+  File? _file;
+  Config? _config;
 
 //  http.Client get client => _client ??= http.Client();
 
   File get file =>
-      _file ??= fs.file(fs.path.join(Cache.flutterRoot, settingsPath));
+      _file ??= fs.file(fs.path.join(Cache.flutterRoot!, settingsPath));
 
   Config get config => _config ??= Config(file);
 
@@ -73,7 +73,10 @@ class ToolVersion {
     bool forceRemote,
   ) async {
     if (forceRemote) {
-      final List<int> charCodes = await fetchUrl(url);
+      final List<int>? charCodes = await fetchUrl(url);
+      if(charCodes == null) {
+        throw Exception('Could not download $url');
+      }
       final Map<String, dynamic> metrics =
           jsonDecode(String.fromCharCodes(charCodes));
       final String varValue = metrics['scorecard'][metric];
@@ -86,10 +89,12 @@ class ToolVersion {
   }
 
   String getInstalledVersion() {
-    return PubCache()
-        .getGlobalApplications()
-        .firstWhere((app) => app.name == packageName, orElse: () => null)
-        .version
-        .toString();
+    for (var app in PubCache().getGlobalApplications()) {
+      if(app.name == packageName) {
+        return app.version.toString();
+      }
+    }
+
+    return '';
   }
 }

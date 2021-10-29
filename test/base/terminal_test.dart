@@ -26,13 +26,13 @@ void main() {
       printStatus(testString);
       expect(testLogger.statusText, equals('$testString\n'));
     }, overrides: <Type, Generator>{
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
       OutputPreferences: () => OutputPreferences(wrapText: false),
     });
   });
 
   group('ANSI coloring and bold', () {
-    AnsiTerminal terminal;
+    AnsiTerminal terminal = AnsiTerminal();
 
     setUp(() {
       terminal = AnsiTerminal();
@@ -48,7 +48,7 @@ void main() {
       }
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
 
     testUsingContext('adding bold works', () {
@@ -58,7 +58,7 @@ void main() {
       );
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
 
     testUsingContext('nesting bold within color works', () {
@@ -75,7 +75,7 @@ void main() {
       );
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
 
     testUsingContext('nesting color within bold works', () {
@@ -92,7 +92,7 @@ void main() {
       );
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
 
     testUsingContext('nesting color within color works', () {
@@ -111,7 +111,7 @@ void main() {
       );
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
 
     testUsingContext('nesting bold within bold works', () {
@@ -126,12 +126,12 @@ void main() {
       );
     }, overrides: <Type, Generator>{
       OutputPreferences: () => OutputPreferences(showColor: true),
-      Platform: () => FakePlatform()..stdoutSupportsAnsi = true,
+      Platform: () => FakePlatform().copyWith(stdoutSupportsAnsi: true),
     });
   });
 
   group('character input prompt', () {
-    AnsiTerminal terminalUnderTest;
+    AnsiTerminal terminalUnderTest = TestTerminal();
 
     setUp(() {
       terminalUnderTest = TestTerminal();
@@ -176,7 +176,7 @@ void main() {
   });
 }
 
-Stream<String> mockStdInStream;
+Stream<String> mockStdInStream = const Stream.empty();
 
 class TestTerminal extends AnsiTerminal {
   @override

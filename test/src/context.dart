@@ -5,14 +5,6 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-//import 'package:tool_base/src/android/android_workflow.dart';
-import 'package:tool_base/src/base/config.dart';
-import 'package:tool_base/src/base/context.dart';
-import 'package:tool_base/src/base/file_system.dart';
-import 'package:tool_base/src/base/io.dart';
-import 'package:tool_base/src/base/logger.dart';
-import 'package:tool_base/src/base/os.dart';
-import 'package:tool_base/src/base/terminal.dart';
 //import 'package:tool_base/src/cache.dart';
 //import 'package:tool_base/src/context_runner.dart';
 //import 'package:tool_base/src/device.dart';
@@ -24,6 +16,14 @@ import 'package:tool_base/src/base/terminal.dart';
 //import 'package:tool_base/src/version.dart';
 import 'package:meta/meta.dart';
 import 'package:mockito/mockito.dart';
+//import 'package:tool_base/src/android/android_workflow.dart';
+import 'package:tool_base/src/base/config.dart';
+import 'package:tool_base/src/base/context.dart';
+import 'package:tool_base/src/base/file_system.dart';
+import 'package:tool_base/src/base/io.dart';
+import 'package:tool_base/src/base/logger.dart';
+import 'package:tool_base/src/base/os.dart';
+import 'package:tool_base/src/base/terminal.dart';
 import 'package:tool_base/src/base/time.dart';
 import 'package:tool_base/src/cache.dart';
 
@@ -33,7 +33,7 @@ import 'context_runner.dart';
 export 'package:tool_base/src/base/context.dart' show Generator;
 
 /// Return the test logger. This assumes that the current Logger is a BufferLogger.
-BufferLogger get testLogger => context.get<Logger>();
+BufferLogger get testLogger => context.get<Logger>()! as BufferLogger;
 
 //MockDeviceManager get testDeviceManager => context.get<DeviceManager>();
 //MockDoctor get testDoctor => context.get<Doctor>();
@@ -44,15 +44,15 @@ typedef ContextInitializer = void Function(AppContext testContext);
 void testUsingContext(
     String description,
     dynamic testMethod(), {
-      Timeout timeout,
-      Map<Type, Generator> overrides = const <Type, Generator>{},
+      Timeout? timeout,
+      Map<Type, Generator>? overrides = const <Type, Generator>{},
       bool initializeFlutterRoot = true,
-      String testOn,
-      bool skip, // should default to `false`, but https://github.com/dart-lang/test/issues/545 doesn't allow this
+      String? testOn,
+      bool skip = false, // should default to `false`, but https://github.com/dart-lang/test/issues/545 doesn't allow this
     }) {
   // Ensure we don't rely on the default [Config] constructor which will
   // leak a sticky $HOME/.flutter_settings behind!
-  Directory configDir;
+  Directory? configDir;
   tearDown(() {
     if (configDir != null) {
       tryToDelete(configDir);
@@ -62,7 +62,7 @@ void testUsingContext(
   Config buildConfig(FileSystem fs) {
     configDir = fs.systemTempDirectory.createTempSync('flutter_config_dir_test.');
     final File settingsFile = fs.file(
-        fs.path.join(configDir.path, '.flutter_settings')
+        fs.path.join(configDir!.path, '.flutter_settings')
     );
     return Config(settingsFile);
   }
@@ -129,7 +129,7 @@ void testUsingContext(
 
 void _printBufferedErrors(AppContext testContext) {
   if (testContext.get<Logger>() is BufferLogger) {
-    final BufferLogger bufferLogger = testContext.get<Logger>();
+    final BufferLogger bufferLogger = testContext.get<Logger>()! as BufferLogger;
     if (bufferLogger.errorText.isNotEmpty)
       print(bufferLogger.errorText);
     bufferLogger.clear();
@@ -225,33 +225,34 @@ void _printBufferedErrors(AppContext testContext) {
 //  }
 //}
 
+/*
 class FakeOperatingSystemUtils implements OperatingSystemUtils {
   @override
-  ProcessResult makeExecutable(File file) => null;
+  void makeExecutable(File file) {}
 
   @override
-  void chmod(FileSystemEntity entity, String mode) { }
+  void chmod(FileSystemEntity entity, String mode) {}
 
   @override
-  File which(String execName) => null;
+  File? which(String execName) => null;
 
   @override
   List<File> whichAll(String execName) => <File>[];
 
   @override
-  File makePipe(String path) => null;
+  File makePipe(String path) => throw Exception("Not implemented");
 
   @override
-  void zip(Directory data, File zipFile) { }
+  void zip(Directory data, File zipFile) {}
 
   @override
-  void unzip(File file, Directory targetDirectory) { }
+  void unzip(File file, Directory targetDirectory) {}
 
   @override
   bool verifyZip(File file) => true;
 
   @override
-  void unpack(File gzippedTarFile, Directory targetDirectory) { }
+  void unpack(File gzippedTarFile, Directory targetDirectory) {}
 
   @override
   bool verifyGzip(File gzippedFile) => true;
@@ -265,6 +266,7 @@ class FakeOperatingSystemUtils implements OperatingSystemUtils {
   @override
   Future<int> findFreePort({bool ipv6 = false}) async => 12345;
 }
+*/
 
 //class MockIOSSimulatorUtils extends Mock implements IOSSimulatorUtils {}
 //

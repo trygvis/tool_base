@@ -10,22 +10,14 @@ import 'platform.dart';
 bool isRunningFromDaemon = false;
 
 /// Return the absolute path of the user's home directory
-String get homeDirPath {
-  String path = platform.isWindows
+String? get homeDirPath {
+  var path = platform.isWindows
       ? platform.environment['USERPROFILE']
       : platform.environment['HOME'];
   if (path != null) {
     path = fs.path.absolute(path);
   }
   return path;
-}
-
-/// Throw a specialized exception for expected situations
-/// where the tool should exit with a clear message to the user
-/// and no stack trace unless the --verbose option is specified.
-/// For example: network errors
-void throwToolExit(String message, { int exitCode }) {
-  throw ToolExit(message, exitCode: exitCode);
 }
 
 /// Specialized exception for expected situations
@@ -36,7 +28,7 @@ class ToolExit implements Exception {
   ToolExit(this.message, { this.exitCode });
 
   final String message;
-  final int exitCode;
+  final int? exitCode;
 
   @override
   String toString() => 'Exception: $message';

@@ -99,7 +99,7 @@ ExitFunction get exit => _exitFunction;
 /// Sets the [exit] function to a function that throws an exception rather
 /// than exiting the process; this is intended for testing purposes.
 @visibleForTesting
-void setExitFunctionForTests([ ExitFunction exitFunction ]) {
+void setExitFunctionForTests([ ExitFunction? exitFunction ]) {
   _exitFunction = exitFunction ?? (int exitCode) {
     throw ProcessExit(exitCode, immediate: true);
   };
@@ -178,8 +178,8 @@ class Stdio {
   io.IOSink get stderr => io.stderr;
 
   bool get hasTerminal => io.stdout.hasTerminal;
-  int get terminalColumns => hasTerminal ? io.stdout.terminalColumns : null;
-  int get terminalLines => hasTerminal ? io.stdout.terminalLines : null;
+  int? get terminalColumns => hasTerminal ? io.stdout.terminalColumns : null;
+  int? get terminalLines => hasTerminal ? io.stdout.terminalLines : null;
   bool get supportsAnsiEscapes => hasTerminal && io.stdout.supportsAnsiEscapes;
 }
 

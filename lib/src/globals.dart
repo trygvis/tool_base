@@ -9,9 +9,9 @@ import 'base/logger.dart';
 import 'base/terminal.dart';
 import 'cache.dart';
 
-Logger get logger => context.get<Logger>();
+Logger get logger => context.get<Logger>()!;
 Cache get cache => Cache.instance;
-Config get config => Config.instance;
+Config get config => Config.instance!;
 //Artifacts get artifacts => Artifacts.instance;
 
 /// Display an error level message to the user. Commands should use this if they
@@ -22,12 +22,12 @@ Config get config => Config.instance;
 /// supports it. The [color] defaults to [TerminalColor.red].
 void printError(
   String message, {
-  StackTrace stackTrace,
-  bool emphasis,
-  TerminalColor color,
-  int indent,
-  int hangingIndent,
-  bool wrap,
+  StackTrace? stackTrace,
+  bool? emphasis,
+  TerminalColor? color,
+  int? indent,
+  int? hangingIndent,
+  bool? wrap,
 }) {
   logger.printError(
     message,
@@ -51,12 +51,12 @@ void printError(
 /// specified number of whitespaces.
 void printStatus(
   String message, {
-  bool emphasis,
-  bool newline,
-  TerminalColor color,
-  int indent,
-  int hangingIndent,
-  bool wrap,
+  bool? emphasis,
+  bool? newline,
+  TerminalColor? color,
+  int? indent,
+  int? hangingIndent,
+  bool? wrap,
 }) {
   logger.printStatus(
     message,

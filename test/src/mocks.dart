@@ -343,6 +343,7 @@ class MemoryIOSink implements IOSink {
   Future<void> flush() async { }
 }
 
+/*
 class MemoryStdout extends MemoryIOSink implements io.Stdout {
   @override
   bool get hasTerminal => _hasTerminal;
@@ -381,6 +382,7 @@ class MemoryStdout extends MemoryIOSink implements io.Stdout {
   set terminalLines(int value) => _terminalLines = value;
   int _terminalLines;
 }
+*/
 
 /// A Stdio that collects stdout and supports simulated stdin.
 class MockStdio extends Stdio {

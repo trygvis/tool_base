@@ -5,8 +5,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 /// Generates an [AppContext] value.
 ///
 /// Generators are allowed to return `null`, in which case the context will
@@ -33,7 +31,7 @@ class ContextDependencyCycleException implements Exception {
 /// context will not have any values associated with it.
 ///
 /// This is guaranteed to never return `null`.
-AppContext get context => Zone.current[_Key.key] as AppContext ?? AppContext._root;
+AppContext get context => Zone.current[_Key.key] as AppContext? ?? AppContext._root;
 
 /// A lookup table (mapping types to values) and an implied scope, in which
 /// code is run.
@@ -52,13 +50,13 @@ class AppContext {
     this._fallbacks = const <Type, Generator>{},
   ]);
 
-  final String name;
-  final AppContext _parent;
+  final String? name;
+  final AppContext? _parent;
   final Map<Type, Generator> _overrides;
   final Map<Type, Generator> _fallbacks;
   final Map<Type, dynamic> _values = <Type, dynamic>{};
 
-  List<Type> _reentrantChecks;
+  List<Type>? _reentrantChecks;
 
   /// Bootstrap context.
   static final AppContext _root = AppContext._(null, 'ROOT');
@@ -85,21 +83,21 @@ class AppContext {
       return null;
 
     return _values.putIfAbsent(type, () {
-      _reentrantChecks ??= <Type>[];
+      final List<Type> checks = _reentrantChecks ??= <Type>[];
 
-      final int index = _reentrantChecks.indexOf(type);
+      final int index = checks.indexOf(type);
       if (index >= 0) {
         // We're already in the process of trying to generate this type.
         throw ContextDependencyCycleException._(
-            UnmodifiableListView<Type>(_reentrantChecks.sublist(index)));
+            UnmodifiableListView<Type>(checks.sublist(index)));
       }
 
-      _reentrantChecks.add(type);
+      checks.add(type);
       try {
-        return _boxNull(generators[type]());
+        return _boxNull(generators[type]!());
       } finally {
-        _reentrantChecks.removeLast();
-        if (_reentrantChecks.isEmpty)
+        checks.removeLast();
+        if (checks.isEmpty)
           _reentrantChecks = null;
       }
     });
@@ -107,12 +105,10 @@ class AppContext {
 
   /// Gets the value associated with the specified [type], or `null` if no
   /// such value has been associated.
-  T get<T>() {
-    dynamic value = _generateIfNecessary(T, _overrides);
-    if (value == null && _parent != null) {
-      value = _parent.get<T>();
-    }
-    return _unboxNull(value ?? _generateIfNecessary(T, _fallbacks)) as T;
+  T? get<T>() {
+    Object? value = _generateIfNecessary(T, _overrides);
+    value ??= _parent?.get<T>();
+    return _unboxNull(value ?? _generateIfNecessary(T, _fallbacks)) as T?;
   }
 
   /// Gets the value associated with the specified [type], or `null` if no
@@ -120,8 +116,7 @@ class AppContext {
   @Deprecated('use get<T> instead for type safety.')
   Object operator [](Type type) {
     dynamic value = _generateIfNecessary(type, _overrides);
-    if (value == null && _parent != null)
-      value = _parent[type];
+    value ??= _parent?[type];
     return _unboxNull(value ?? _generateIfNecessary(type, _fallbacks));
   }
 
@@ -138,11 +133,11 @@ class AppContext {
   /// name. This is useful for debugging purposes and is analogous to naming a
   /// thread in Java.
   Future<V> run<V>({
-    @required FutureOr<V> body(),
-    String name,
-    Map<Type, Generator> overrides,
-    Map<Type, Generator> fallbacks,
-    ZoneSpecification zoneSpecification,
+    required FutureOr<V> body(),
+    String? name,
+    Map<Type, Generator>? overrides,
+    Map<Type, Generator>? fallbacks,
+    ZoneSpecification? zoneSpecification,
   }) async {
     final AppContext child = AppContext._(
       this,
@@ -161,7 +156,7 @@ class AppContext {
   String toString() {
     final StringBuffer buf = StringBuffer();
     String indent = '';
-    AppContext ctx = this;
+    AppContext? ctx = this;
     while (ctx != null) {
       buf.write('AppContext');
       if (ctx.name != null)

@@ -4,16 +4,10 @@
 
 class Version implements Comparable<Version> {
   /// Creates a new [Version] object.
-  factory Version(int major, int minor, int patch, {String text}) {
-    if (text == null) {
-      text = major == null ? '0' : '$major';
-      if (minor != null)
-        text = '$text.$minor';
-      if (patch != null)
-        text = '$text.$patch';
-    }
+  factory Version(int major, int minor, int patch, {String? text}) {
+    text ??= '$major.$minor.$patch';
 
-    return Version._(major ?? 0, minor ?? 0, patch ?? 0, text);
+    return Version._(major, minor, patch, text);
   }
 
   Version._(this.major, this.minor, this.patch, this._text) {
@@ -26,8 +20,8 @@ class Version implements Comparable<Version> {
   }
 
   /// Creates a new [Version] by parsing [text].
-  factory Version.parse(String text) {
-    final Match match = versionPattern.firstMatch(text ?? '');
+  static Version? parse(String text) {
+    final match = versionPattern.firstMatch(text);
     if (match == null) {
       return null;
     }
@@ -45,8 +39,8 @@ class Version implements Comparable<Version> {
   /// Returns the primary version out of a list of candidates.
   ///
   /// This is the highest-numbered stable version.
-  static Version primary(List<Version> versions) {
-    Version primary;
+  static Version? primary(List<Version> versions) {
+    Version? primary;
     for (Version version in versions) {
       if (primary == null || (version > primary)) {
         primary = version;

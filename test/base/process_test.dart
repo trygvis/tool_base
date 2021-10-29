@@ -16,7 +16,7 @@ import '../src/mocks.dart' show MockProcess, MockProcessManager;
 
 void main() {
   group('process exceptions', () {
-    ProcessManager mockProcessManager;
+    ProcessManager mockProcessManager = PlainMockProcessManager();
 
     setUp(() {
       mockProcessManager = PlainMockProcessManager();
@@ -35,10 +35,10 @@ void main() {
   group('shutdownHooks', () {
     testUsingContext('runInExpectedOrder', () async {
       int i = 1;
-      int serializeRecording1;
-      int serializeRecording2;
-      int postProcessRecording;
-      int cleanup;
+      int serializeRecording1 = -1;
+      int serializeRecording2 = -1;
+      int postProcessRecording = -1;
+      int cleanup = -1;
 
       addShutdownHook(() async {
         serializeRecording1 = i++;
@@ -65,8 +65,8 @@ void main() {
     });
   });
   group('output formatting', () {
-    MockProcessManager mockProcessManager;
-    BufferLogger mockLogger;
+    MockProcessManager mockProcessManager = MockProcessManager();
+    BufferLogger mockLogger = BufferLogger();
 
     setUp(() {
       mockProcessManager = MockProcessManager();
@@ -96,7 +96,7 @@ void main() {
       OutputPreferences: () =>
           OutputPreferences(wrapText: true, wrapColumn: 40),
       Platform: () => FakePlatform.fromPlatform(const LocalPlatform())
-        ..stdoutSupportsAnsi = false,
+        .copyWith(stdoutSupportsAnsi: false),
     });
   });
 }

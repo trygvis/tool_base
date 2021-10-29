@@ -8,7 +8,7 @@ import 'context.dart';
 
 /// command-line flags and options that were specified during the invocation of
 /// the Flutter tool.
-Flags get flags => context.get<Flags>();
+Flags? get flags => context.get<Flags>();
 
 /// Encapsulation of the command-line flags and options that were specified
 /// during the invocation of the Flutter tool.
@@ -20,7 +20,8 @@ class Flags {
   Flags(this._globalResults)
     : assert(_globalResults != null);
 
-  final ArgResults _globalResults;
+  // trygvis
+  final ArgResults? _globalResults;
 
   /// Gets the value of the specified command-line flag/option that was set
   /// during the invocation of the Flutter tool.
@@ -34,21 +35,21 @@ class Flags {
   /// If the specified flag is not defined or was not specified and had no
   /// default, then this will return `null`.
   dynamic operator [](String key) {
-    final ArgResults commandResults = _globalResults.command;
-    final Iterable<String> options = commandResults?.options;
-    if (options != null && options.contains(key))
-      return commandResults[key];
-    else if (_globalResults.options.contains(key))
-      return _globalResults[key];
+    final ArgResults? commandResults = _globalResults?.command;
+    final Iterable<String> options = commandResults?.options ?? [];
+    if (options.contains(key))
+      return commandResults?[key];
+    else if (_globalResults?.options.contains(key) ?? false)
+      return _globalResults?[key];
     return null;
   }
 
   /// `true` iff the given flag/option was either explicitly specified by the
   /// user at the command-line or it was defined to have a default value.
   bool contains(String key) {
-    final ArgResults commandResults = _globalResults.command;
-    final Iterable<String> options = commandResults?.options;
-    return (options != null && options.contains(key)) || _globalResults.options.contains(key);
+    final ArgResults? commandResults = _globalResults?.command;
+    final Iterable<String> options = commandResults?.options ?? [];
+    return options.contains(key) || (_globalResults?.options.contains(key) ?? false);
   }
 }
 
@@ -56,10 +57,10 @@ class EmptyFlags implements Flags {
   const EmptyFlags();
 
   @override
-  ArgResults get _globalResults => null;
+  ArgResults? get _globalResults => null;
 
   @override
-  String operator [](String key) => null;
+  String? operator [](String key) => null;
 
   @override
   bool contains(String key) => false;

@@ -15,12 +15,12 @@ const int kNetworkProblemExitCode = 50;
 typedef HttpClientFactory = HttpClient Function();
 
 /// Download a file from the given URL and return the bytes.
-Future<List<int>> fetchUrl(Uri url, {int maxAttempts}) async {
+Future<List<int>?> fetchUrl(Uri url, {int? maxAttempts}) async {
   int attempts = 0;
   int durationSeconds = 1;
   while (true) {
     attempts += 1;
-    final List<int> result = await _attempt(url);
+    final List<int>? result = await _attempt(url);
     if (result != null)
       return result;
     if (maxAttempts != null && attempts >= maxAttempts) {
@@ -39,11 +39,12 @@ Future<List<int>> fetchUrl(Uri url, {int maxAttempts}) async {
 Future<bool> doesRemoteFileExist(Uri url) async =>
   (await _attempt(url, onlyHeaders: true)) != null;
 
-Future<List<int>> _attempt(Uri url, { bool onlyHeaders = false }) async {
+Future<List<int>?> _attempt(Uri url, { bool onlyHeaders = false }) async {
   printTrace('Downloading: $url');
   HttpClient httpClient;
-  if (context.get<HttpClientFactory>() != null) {
-    httpClient = context.get<HttpClientFactory>()();
+  final factory = context.get<HttpClientFactory>();
+  if (factory != null) {
+    httpClient = factory();
   } else {
     httpClient = HttpClient();
   }
@@ -55,10 +56,10 @@ Future<List<int>> _attempt(Uri url, { bool onlyHeaders = false }) async {
       request = await httpClient.getUrl(url);
     }
   } on ArgumentError catch (error) {
-    final String overrideUrl = platform.environment['FLUTTER_STORAGE_BASE_URL'];
+    final overrideUrl = platform.environment['FLUTTER_STORAGE_BASE_URL'];
     if (overrideUrl != null && url.toString().contains(overrideUrl)) {
       printError(error.toString());
-      throwToolExit(
+      throw ToolExit(
         'The value of FLUTTER_STORAGE_BASE_URL ($overrideUrl) could not be '
         'parsed as a valid url. Please see https://flutter.dev/community/china '
         'for an example of how to use it.\n'
@@ -69,7 +70,7 @@ Future<List<int>> _attempt(Uri url, { bool onlyHeaders = false }) async {
     rethrow;
   } on HandshakeException catch (error) {
     printTrace(error.toString());
-    throwToolExit(
+    throw ToolExit(
       'Could not authenticate download server. You may be experiencing a man-in-the-middle attack,\n'
       'your network may be compromised, or you may have malware installed on your computer.\n'
       'URL: $url',
@@ -90,7 +91,7 @@ Future<List<int>> _attempt(Uri url, { bool onlyHeaders = false }) async {
   }
   if (response.statusCode != 200) {
     if (response.statusCode > 0 && response.statusCode < 500) {
-      throwToolExit(
+      throw ToolExit(
         'Download failed.\n'
         'URL: $url\n'
         'Error: ${response.statusCode} ${response.reasonPhrase}',

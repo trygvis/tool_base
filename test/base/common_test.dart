@@ -7,23 +7,23 @@ import 'package:tool_base/src/base/common.dart';
 import '../src/common.dart';
 
 void main() {
-  group('throwToolExit', () {
+  group('throw ToolExit', () {
     test('throws ToolExit', () {
-      expect(() => throwToolExit('message'), throwsToolExit());
+      expect(() => throw ToolExit('message'), throwsToolExit());
     });
 
     test('throws ToolExit with exitCode', () {
-      expect(() => throwToolExit('message', exitCode: 42),
+      expect(() => throw ToolExit('message', exitCode: 42),
           throwsToolExit(exitCode: 42));
     });
 
     test('throws ToolExit with message', () {
       expect(
-          () => throwToolExit('message'), throwsToolExit(message: 'message'));
+          () => throw ToolExit('message'), throwsToolExit(message: 'message'));
     });
 
     test('throws ToolExit with message and exit code', () {
-      expect(() => throwToolExit('message', exitCode: 42),
+      expect(() => throw ToolExit('message', exitCode: 42),
           throwsToolExit(exitCode: 42, message: 'message'));
     });
   });

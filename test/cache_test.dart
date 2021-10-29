@@ -5,27 +5,38 @@
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
 import 'package:file_testing/file_testing.dart';
-import 'package:meta/meta.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:platform/platform.dart';
-
 import 'package:tool_base/src/base/common.dart';
-import 'package:tool_base/src/cache.dart';
 import 'package:tool_base/src/base/file_system.dart';
 import 'package:tool_base/src/base/io.dart' show InternetAddress, SocketException;
 import 'package:tool_base/src/base/net.dart';
 import 'package:tool_base/src/base/os.dart';
+import 'package:tool_base/src/cache.dart';
 
+import 'cache_test.mocks.dart';
 import 'src/common.dart';
 import 'src/context.dart';
 import 'src/testbed.dart';
 
+@GenerateMocks([
+  // File,
+  // RandomAccessFile,
+
+  FileSystem,
+  Directory,
+  CachedArtifact,
+  InternetAddress,
+  Cache,
+  OperatingSystemUtils,
+])
 void main() {
   group('$Cache.checkLockAcquired', () {
-    MockFileSystem mockFileSystem;
-    MemoryFileSystem memoryFileSystem;
-    MockFile mockFile;
-    MockRandomAccessFile mockRandomAccessFile;
+    MockFileSystem mockFileSystem = MockFileSystem();
+    MemoryFileSystem memoryFileSystem = MemoryFileSystem();
+    MockFile mockFile = MockFile();
+    MockRandomAccessFile mockRandomAccessFile = MockRandomAccessFile();
 
     setUp(() {
       mockFileSystem = MockFileSystem();
@@ -57,7 +68,7 @@ void main() {
       final Directory mockDirectory = MockDirectory();
       when(mockFileSystem.file(argThat(endsWith('lockfile')))).thenReturn(mockFile);
       when(mockFile.existsSync()).thenReturn(true);
-      when(mockFile.openSync(mode: anyNamed('mode'))).thenReturn(mockRandomAccessFile);
+      when(mockFile.openSync(mode: FileMode.read)).thenReturn(mockRandomAccessFile);
       when(mockFileSystem.systemTempDirectory).thenReturn(mockDirectory);
       when(mockFileSystem.directory(any)).thenReturn(mockDirectory);
       when(mockDirectory.existsSync()).thenReturn(true);
@@ -74,7 +85,7 @@ void main() {
       final Directory mockDirectory = MockDirectory();
       when(mockFileSystem.file(argThat(endsWith('lockfile')))).thenReturn(mockFile);
       when(mockFile.existsSync()).thenReturn(true);
-      when(mockFile.openSync(mode: anyNamed('mode'))).thenThrow(const FileSystemException());
+      when(mockFile.openSync(mode: FileMode.read)).thenThrow(const FileSystemException());
       when(mockFileSystem.systemTempDirectory).thenReturn(mockDirectory);
       when(mockFileSystem.directory(any)).thenReturn(mockDirectory);
       when(mockDirectory.existsSync()).thenReturn(true);
@@ -87,13 +98,14 @@ void main() {
     testUsingContext('should not throw when FLUTTER_ALREADY_LOCKED is set', () async {
       Cache.checkLockAcquired();
     }, overrides: <Type, Generator>{
-      Platform: () => FakePlatform()..environment = <String, String>{'FLUTTER_ALREADY_LOCKED': 'true'},
+      Platform: () => FakePlatform().copyWith(
+          environment: {'FLUTTER_ALREADY_LOCKED': 'true'}),
     });
   });
 
   group('Cache', () {
-    MockCache mockCache;
-    MemoryFileSystem memoryFileSystem;
+    var mockCache = MockCache();
+    var memoryFileSystem = MemoryFileSystem();
 
     setUp(() {
       mockCache = MockCache();
@@ -214,15 +226,15 @@ void main() {
   });
 
   group('EngineCachedArtifact', () {
-    FakeHttpClient fakeHttpClient;
-    FakePlatform fakePlatform;
-    MemoryFileSystem memoryFileSystem;
-    MockCache mockCache;
-    MockOperatingSystemUtils mockOperatingSystemUtils;
+    var fakeHttpClient = FakeHttpClient();
+    var fakePlatform = FakePlatform();
+    var memoryFileSystem = MemoryFileSystem();
+    var mockCache = MockCache();
+    var mockOperatingSystemUtils = MockOperatingSystemUtils();
 
     setUp(() {
       fakeHttpClient = FakeHttpClient();
-      fakePlatform = FakePlatform()..environment = const <String, String>{};
+      fakePlatform = FakePlatform().copyWith(environment: {});
       memoryFileSystem = MemoryFileSystem();
       mockCache = MockCache();
       mockOperatingSystemUtils = MockOperatingSystemUtils();
@@ -244,7 +256,7 @@ void main() {
       final Directory dir = memoryFileSystem.systemTempDirectory
           .listSync(recursive: true)
           .whereType<Directory>()
-          .singleWhere((Directory directory) => directory.basename == 'bin_dir', orElse: () => null);
+          .singleWhere((Directory directory) => directory.basename == 'bin_dir');
       expect(dir, isNotNull);
       expect(dir.path, artifactDir.childDirectory('bin_dir').path);
       verify(mockOperatingSystemUtils.chmod(argThat(hasPath(dir.path)), 'a+r,a+x'));
@@ -265,7 +277,7 @@ void main() {
         }
     );
     final Directory mockDirectory = MockDirectory();
-    when(fakeCachedArtifact.cache.getArtifactDirectory(any))
+    when(fakeCachedArtifact.cache.getArtifactDirectory(''))
         .thenReturn(mockDirectory);
     when(mockDirectory.existsSync()).thenReturn(false);
     when(mockDirectory.createSync(recursive: true))
@@ -282,7 +294,7 @@ void main() {
 class FakeCachedArtifact extends EngineCachedArtifact {
   FakeCachedArtifact({
     String stampName = 'STAMP',
-    @required Cache cache,
+    required Cache cache,
     Set<DevelopmentArtifact> requiredArtifacts = const <DevelopmentArtifact>{},
     this.binaryDirs = const <List<String>>[],
     this.licenseDirs = const <String>[],
@@ -303,12 +315,6 @@ class FakeCachedArtifact extends EngineCachedArtifact {
   List<String> getPackageDirs() => packageDirs;
 }
 
-class MockFileSystem extends Mock implements FileSystem {}
 class MockFile extends Mock implements File {}
-class MockDirectory extends Mock implements Directory {}
 
 class MockRandomAccessFile extends Mock implements RandomAccessFile {}
-class MockCachedArtifact extends Mock implements CachedArtifact {}
-class MockInternetAddress extends Mock implements InternetAddress {}
-class MockCache extends Mock implements Cache {}
-class MockOperatingSystemUtils extends Mock implements OperatingSystemUtils {}

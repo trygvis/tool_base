@@ -3,15 +3,15 @@
 // found in the LICENSE file.
 
 import 'package:file/memory.dart';
-import 'package:tool_base/src/base/file_system.dart';
 import 'package:platform/platform.dart';
+import 'package:tool_base/src/base/file_system.dart';
 
 import '../src/common.dart';
 import '../src/context.dart';
 
 void main() {
   group('ensureDirectoryExists', () {
-    MemoryFileSystem fs;
+    MemoryFileSystem fs = MemoryFileSystem();
 
     setUp(() {
       fs = MemoryFileSystem();

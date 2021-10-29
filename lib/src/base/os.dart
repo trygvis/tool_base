@@ -13,7 +13,13 @@ import 'process.dart';
 import 'process_manager.dart';
 
 /// Returns [OperatingSystemUtils] active in the current app context (i.e. zone).
-OperatingSystemUtils get os => context.get<OperatingSystemUtils>();
+OperatingSystemUtils get os {
+  final ctx = context.get<OperatingSystemUtils>();
+  if (ctx == null) {
+    throw StateError('No OperatingSystemUtils available');
+  }
+  return ctx;
+}
 
 abstract class OperatingSystemUtils {
   factory OperatingSystemUtils() {
@@ -39,7 +45,7 @@ abstract class OperatingSystemUtils {
 
   /// Return the path (with symlinks resolved) to the given executable, or null
   /// if `which` was not able to locate the binary.
-  File which(String execName) {
+  File? which(String execName) {
     final List<File> result = _which(execName);
     if (result == null || result.isEmpty)
       return null;
@@ -68,7 +74,7 @@ abstract class OperatingSystemUtils {
   /// Returns a pretty name string for the current operating system.
   ///
   /// If available, the detailed version of the OS is included.
-  String get name {
+  String? get name {
     const Map<String, String> osNames = <String, String>{
       'macos': 'Mac OS',
       'linux': 'Linux',
@@ -91,7 +97,7 @@ abstract class OperatingSystemUtils {
   /// its intended user.
   Future<int> findFreePort({bool ipv6 = false}) async {
     int port = 0;
-    ServerSocket serverSocket;
+    ServerSocket? serverSocket;
     final InternetAddress loopback =
         ipv6 ? InternetAddress.loopbackIPv6 : InternetAddress.loopbackIPv4;
     try {
@@ -181,10 +187,10 @@ class _PosixUtils extends OperatingSystemUtils {
     return fs.file(path);
   }
 
-  String _name;
+  String? _name;
 
   @override
-  String get name {
+  String? get name {
     if (_name == null) {
       if (platform.isMacOS) {
         final List<ProcessResult> results = <ProcessResult>[
@@ -239,7 +245,10 @@ class _WindowsUtils extends OperatingSystemUtils {
       final List<int> bytes = file.readAsBytesSync();
       archive.addFile(ArchiveFile(path, bytes.length, bytes));
     }
-    zipFile.writeAsBytesSync(ZipEncoder().encode(archive), flush: true);
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes != null) {
+      zipFile.writeAsBytesSync(bytes, flush: true);
+    }
   }
 
   @override
@@ -298,10 +307,10 @@ class _WindowsUtils extends OperatingSystemUtils {
     throw UnsupportedError('makePipe is not implemented on Windows.');
   }
 
-  String _name;
+  String? _name;
 
   @override
-  String get name {
+  String? get name {
     if (_name == null) {
       final ProcessResult result = processManager.runSync(
           <String>['ver'], runInShell: true);
@@ -321,15 +330,15 @@ class _WindowsUtils extends OperatingSystemUtils {
 /// directory or the current working directory if none specified.
 /// Return null if the project root could not be found
 /// or if the project root is the flutter repository root.
-String findProjectRoot([ String directory ]) {
+String? findProjectRoot([ String? directory ]) {
   const String kProjectRootSentinel = 'pubspec.yaml';
-  directory ??= fs.currentDirectory.path;
+  var d = directory ?? fs.currentDirectory.path;
   while (true) {
-    if (fs.isFileSync(fs.path.join(directory, kProjectRootSentinel)))
-      return directory;
-    final String parent = fs.path.dirname(directory);
-    if (directory == parent)
+    if (fs.isFileSync(fs.path.join(d, kProjectRootSentinel)))
+      return d;
+    final String parent = fs.path.dirname(d);
+    if (d == parent)
       return null;
-    directory = parent;
+    d = parent;
   }
 }

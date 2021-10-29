@@ -5,10 +5,9 @@
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:file/memory.dart';
-import 'package:file/record_replay.dart';
-import 'package:meta/meta.dart';
+// import 'package:file/record_replay.dart';
 
-import 'common.dart' show throwToolExit;
+import 'common.dart' show ToolExit;
 import 'context.dart';
 import 'platform.dart';
 import 'process.dart';
@@ -25,6 +24,7 @@ const FileSystem _kLocalFs = LocalFileSystem();
 /// with [MemoryFileSystem].
 FileSystem get fs => context.get<FileSystem>() ?? _kLocalFs;
 
+/*
 /// Gets a [FileSystem] that will record file system activity to the specified
 /// base recording [location].
 ///
@@ -51,6 +51,7 @@ ReplayFileSystem getReplayFileSystem(String location) {
   final Directory dir = getReplaySource(location, _kRecordingType);
   return ReplayFileSystem(recording: dir);
 }
+*/
 
 /// Create the ancestor directories of a file path if they do not already exist.
 void ensureDirectoryExists(String filePath) {
@@ -60,7 +61,7 @@ void ensureDirectoryExists(String filePath) {
   try {
     fs.directory(dirPath).createSync(recursive: true);
   } on FileSystemException catch (e) {
-    throwToolExit('Failed to create directory "$dirPath": ${e.osError.message}');
+    throw ToolExit('Failed to create directory "$dirPath": ${e.osError?.message}');
   }
 }
 
@@ -68,7 +69,7 @@ void ensureDirectoryExists(String filePath) {
 /// specified for each source/destination file pair.
 ///
 /// Creates `destDir` if needed.
-void copyDirectorySync(Directory srcDir, Directory destDir, [ void onFileCopied(File srcFile, File destFile) ]) {
+void copyDirectorySync(Directory srcDir, Directory destDir, [ void onFileCopied(File srcFile, File destFile)? ]) {
   if (!srcDir.existsSync())
     throw Exception('Source directory "${srcDir.path}" does not exist, nothing to copy');
 
@@ -105,11 +106,10 @@ Directory getRecordingSink(String dirname, String basename) {
   switch (_kLocalFs.typeSync(location, followLinks: false)) {
     case FileSystemEntityType.file:
     case FileSystemEntityType.link:
-      throwToolExit('Invalid record-to location: $dirname ("$basename" exists as non-directory)');
-      break;
+      throw ToolExit('Invalid record-to location: $dirname ("$basename" exists as non-directory)');
     case FileSystemEntityType.directory:
       if (_kLocalFs.directory(location).listSync(followLinks: false).isNotEmpty)
-        throwToolExit('Invalid record-to location: $dirname ("$basename" is not empty)');
+        throw ToolExit('Invalid record-to location: $dirname ("$basename" is not empty)');
       break;
     case FileSystemEntityType.notFound:
       _kLocalFs.directory(location).createSync(recursive: true);
@@ -127,7 +127,7 @@ Directory getRecordingSink(String dirname, String basename) {
 Directory getReplaySource(String dirname, String basename) {
   final Directory dir = _kLocalFs.directory(_kLocalFs.path.join(dirname, basename));
   if (!dir.existsSync())
-    throwToolExit('Invalid replay-from location: $dirname ("$basename" does not exist)');
+    throw ToolExit('Invalid replay-from location: $dirname ("$basename" does not exist)');
   return dir;
 }
 
@@ -151,7 +151,7 @@ String escapePath(String path) => platform.isWindows ? path.replaceAll('\\', '\\
 /// Returns true, if [entity] does not exist.
 ///
 /// Returns false, if [entity] exists, but [referenceFile] does not.
-bool isOlderThanReference({ @required FileSystemEntity entity, @required File referenceFile }) {
+bool isOlderThanReference({ required FileSystemEntity entity, required File referenceFile }) {
   if (!entity.existsSync())
     return true;
   return referenceFile.existsSync()
@@ -166,4 +166,18 @@ class FileNotFoundException implements IOException {
 
   @override
   String toString() => 'File not found: $path';
+}
+
+void tryToDelete(Directory? directory) {
+  if(directory == null) {
+    return;
+  }
+  // This should not be necessary, but it turns out that
+  // on Windows it's common for deletions to fail due to
+  // bogus (we think) "access denied" errors.
+  try {
+    directory.deleteSync(recursive: true);
+  } on FileSystemException catch (error) {
+    print('Failed to delete ${directory.path}: $error');
+  }
 }

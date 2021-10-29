@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:process/process.dart';
-import 'package:process/record_replay.dart';
+// import 'package:process/record_replay.dart';
 
 import 'common.dart';
 import 'context.dart';
@@ -18,6 +18,7 @@ const ProcessManager _kLocalProcessManager = LocalProcessManager();
 /// The active process manager.
 ProcessManager get processManager => context.get<ProcessManager>() ?? _kLocalProcessManager;
 
+/*
 /// Gets a [ProcessManager] that will record process invocation activity to the
 /// specified base recording [location].
 ///
@@ -48,8 +49,9 @@ Future<ReplayProcessManager> getReplayProcessManager(String location) async {
   try {
     manager = await ReplayProcessManager.create(dir);
   } on ArgumentError catch (error) {
-    throwToolExit('Invalid replay-from: $error');
+    throw ToolExit('Invalid replay-from: $error');
   }
 
   return manager;
 }
+*/
