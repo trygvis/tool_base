@@ -26,7 +26,7 @@ class Config {
 
   dynamic getValue(String key) => _values[key];
 
-  void setValue(String key, Object value) {
+  void setValue(String key, Object? value) {
     _values[key] = value;
     _flushValues();
   }
