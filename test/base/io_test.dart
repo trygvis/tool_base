@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:tool_base/src/base/io.dart';
 import 'package:mockito/mockito.dart';
+import 'package:tool_base/src/base/io.dart';
 
 import '../src/common.dart';
 import '../src/context.dart';

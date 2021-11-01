@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:mockito/mockito.dart';
+import 'package:process/process.dart';
 import 'package:tool_base/src/base/io.dart';
 import 'package:tool_base/src/base/logger.dart';
 import 'package:tool_base/src/base/platform.dart';
 import 'package:tool_base/src/base/process.dart';
 import 'package:tool_base/src/base/terminal.dart';
-import 'package:mockito/mockito.dart';
-import 'package:process/process.dart';
 
 import '../src/common.dart';
 import '../src/context.dart';

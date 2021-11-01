@@ -10,12 +10,10 @@ import 'package:file/memory.dart';
 import 'common.dart' show ToolExit;
 import 'context.dart';
 import 'platform.dart';
-import 'process.dart';
 
 export 'package:file/file.dart';
 export 'package:file/local.dart';
 
-const String _kRecordingType = 'file';
 const FileSystem _kLocalFs = LocalFileSystem();
 
 /// Currently active implementation of the file system.

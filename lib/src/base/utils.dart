@@ -295,7 +295,7 @@ class Poller {
 /// The returned [Future<List>] will be shorter than the given `futures` if
 /// it contains nulls.
 Future<List<T>> waitGroup<T>(Iterable<Future<T>> futures) {
-  return Future.wait<T>(futures.where((Future<T> future) => future != null));
+  return Future.wait<T>(futures);
 }
 /// The terminal width used by the [wrapText] function if there is no terminal
 /// attached to [io.Stdio], --wrap is on, and --wrap-columns was not specified.
@@ -399,10 +399,7 @@ String wrapText(String? text, { int? columnWidth, int? hangingIndent, int? inden
 }
 
 void writePidFile(String pidFile) {
-  if (pidFile != null) {
-    // Write our pid to the file.
-    fs.file(pidFile).writeAsStringSync(io.pid.toString());
-  }
+  fs.file(pidFile).writeAsStringSync(io.pid.toString());
 }
 
 // Used to represent a run of ANSI control sequences next to a visible

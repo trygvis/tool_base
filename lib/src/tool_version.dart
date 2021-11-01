@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file/file.dart';
 import 'package:pub_cache/pub_cache.dart';

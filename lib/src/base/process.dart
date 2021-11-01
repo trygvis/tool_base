@@ -152,13 +152,11 @@ Future<int> runCommandAndStreamOutput(
     .listen((String line) {
       if (mapFunction != null)
         line = mapFunction(line);
-      if (line != null) {
-        final String message = '$prefix$line';
-        if (trace)
-          printTrace(message);
-        else
-          printStatus(message, wrap: false);
-      }
+      final String message = '$prefix$line';
+      if (trace)
+        printTrace(message);
+      else
+        printStatus(message, wrap: false);
     });
   final StreamSubscription<String> stderrSubscription = process.stderr
     .transform<String>(utf8.decoder)
@@ -167,8 +165,7 @@ Future<int> runCommandAndStreamOutput(
     .listen((String line) {
       if (mapFunction != null)
         line = mapFunction(line);
-      if (line != null)
-        printError('$prefix$line', wrap: false);
+      printError('$prefix$line', wrap: false);
     });
 
   // Wait for stdout to be fully processed
@@ -398,8 +395,7 @@ class ProcessExit implements Exception {
 
 class RunResult {
   RunResult(this.processResult, this._command)
-    : assert(_command != null),
-      assert(_command.isNotEmpty);
+    : assert(_command.isNotEmpty);
 
   final ProcessResult processResult;
 

@@ -105,7 +105,6 @@ class AnsiTerminal {
   final RegExp _boldControls = RegExp('(${RegExp.escape(resetBold)}|${RegExp.escape(bold)})');
 
   String bolden(String message) {
-    assert(message != null);
     if (!supportsColor || message.isEmpty)
       return message;
     final StringBuffer buffer = StringBuffer();
@@ -124,8 +123,7 @@ class AnsiTerminal {
   }
 
   String color(String message, TerminalColor color) {
-    assert(message != null);
-    if (!supportsColor || color == null || message.isEmpty)
+    if (!supportsColor || message.isEmpty)
       return message;
     final StringBuffer buffer = StringBuffer();
     final colorCodes = _colorMap[color];
@@ -192,10 +190,8 @@ class AnsiTerminal {
     int? defaultChoiceIndex,
     bool displayAcceptedCharacters = true,
   }) async {
-    assert(acceptedCharacters != null);
     assert(acceptedCharacters.isNotEmpty);
     assert(prompt == null || prompt.isNotEmpty);
-    assert(displayAcceptedCharacters != null);
     List<String> charactersToDisplay = acceptedCharacters;
     if (defaultChoiceIndex != null) {
       assert(defaultChoiceIndex >= 0 && defaultChoiceIndex < acceptedCharacters.length);

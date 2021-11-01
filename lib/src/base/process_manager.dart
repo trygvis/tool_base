@@ -2,17 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:process/process.dart';
 // import 'package:process/record_replay.dart';
 
-import 'common.dart';
 import 'context.dart';
-import 'file_system.dart';
-import 'process.dart';
 
-const String _kRecordingType = 'process';
 const ProcessManager _kLocalProcessManager = LocalProcessManager();
 
 /// The active process manager.

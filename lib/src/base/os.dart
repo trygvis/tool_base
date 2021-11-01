@@ -47,9 +47,7 @@ abstract class OperatingSystemUtils {
   /// if `which` was not able to locate the binary.
   File? which(String execName) {
     final List<File> result = _which(execName);
-    if (result == null || result.isEmpty)
-      return null;
-    return result.first;
+    return result.isEmpty ? null : result.first;
   }
 
   /// Return a list of all paths to `execName` found on the system. Uses the
