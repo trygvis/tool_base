@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:file/file.dart';
 import 'package:meta/meta.dart';
 
 import 'base/common.dart';

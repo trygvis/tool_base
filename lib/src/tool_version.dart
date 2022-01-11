@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:file/file.dart';
 import 'package:pub_cache/pub_cache.dart';
 
 import 'base/config.dart';
@@ -48,13 +47,13 @@ class ToolVersion {
   static const String kLatestVersion = 'latestVersion';
   static const String kVersionDate = 'versionDate';
 
-  Future<String> getLatestVersion({bool forceRemote = false}) async =>
+  Future<String?> getLatestVersion({bool forceRemote = false}) async =>
       await _getVar(kLatestVersion, 'packageVersion', forceRemote);
 
 //  void setVersion(String version) => config.setValue(kVersion, version);
 
   Future<String> getVersionDate({bool forceRemote = false}) async {
-    String versionDate = await _getVar(kVersionDate, 'updated', forceRemote);
+    var versionDate = await _getVar(kVersionDate, 'updated', forceRemote);
     // hack, can't find real date
     if (versionDate == null) {
       versionDate = DateTime.now().toIso8601String();
@@ -66,7 +65,7 @@ class ToolVersion {
 //  void setVersionDate(String versionDate) =>
 //      config.setValue(kVersionDate, versionDate);
 
-  Future<String> _getVar(
+  Future<String?> _getVar(
     String varName,
     String metric,
     bool forceRemote,

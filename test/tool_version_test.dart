@@ -38,7 +38,7 @@ void main() {
     testUsingContext('get version remotely', () async {
       final File settingsFile = fs.file(fs.path.join(Cache.flutterRoot!, settingsFileName));
       final ToolVersion toolVersion = ToolVersion(toolName, settingsFileName);
-      final String version = await toolVersion.getLatestVersion(forceRemote: true);
+      final version = await toolVersion.getLatestVersion(forceRemote: true);
       final String savedVersion = jsonDecode(settingsFile.readAsStringSync())['latestVersion'];
       expect(version, savedVersion);
     }, overrides: <Type, Generator>{
@@ -65,7 +65,7 @@ void main() {
         ToolVersion.kLatestVersion: latestVersion,
       }));
       final ToolVersion toolVersion = ToolVersion('sylph', settingsPath);
-      final String version = await toolVersion.getLatestVersion();
+      final version = await toolVersion.getLatestVersion();
       final String savedVersion = jsonDecode(fs.file(settings).readAsStringSync())[ToolVersion.kLatestVersion];
       expect(version, savedVersion);
     }, overrides: <Type, Generator>{

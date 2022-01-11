@@ -17,7 +17,7 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.0.0
   file_testing: ^3.0.0
-  mockito: ^5.0.16
   lints: ^1.0.1
+  mockito: ^5.0.16
   quiver: ^3.0.0
   test: ^1.19.2
